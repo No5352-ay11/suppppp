@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Admin – Anmeldeversuche</title>
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+
+        body {
+            background: #f8f9fa;
+
+            color: #202124;
+
+            min-height: 100vh;
+
+            padding: 40px 20px;
+        }
+
+
+        .container {
+            max-width: 800px;
+
+            margin: auto;
+        }
+
+
+        .logo {
+            text-align: center;
+
+            font-size: 32px;
+
+            font-weight: 500;
+
+            margin-bottom: 15px;
+
+            letter-spacing: -2px;
+        }
+
+
+        .blue {
+            color: #4285f4;
+        }
+
+
+        .red {
+            color: #ea4335;
+        }
+
+
+        .yellow {
+            color: #fbbc05;
+        }
+
+
+        .green {
+            color: #34a853;
+        }
+
+
+        h1 {
+            text-align: center;
+
+            font-weight: 400;
+
+            margin-bottom: 10px;
+        }
+
+
+        .subtitle {
+            text-align: center;
+
+            color: #5f6368;
+
+            margin-bottom: 30px;
+        }
+
+
+        .login-box {
+            background: white;
+
+            border: 1px solid #dadce0;
+
+            border-radius: 8px;
+
+            padding: 25px;
+
+            margin-bottom: 25px;
+        }
+
+
+        .login-box input {
+            width: 100%;
+
+            height: 50px;
+
+            padding: 12px;
+
+            border: 1px solid #dadce0;
+
+            border-radius: 4px;
+
+            font-size: 16px;
+
+            margin-bottom: 15px;
+
+            outline: none;
+        }
+
+
+        .login-box input:focus {
+            border: 2px solid #1a73e8;
+        }
+
+
+        button {
+            border: none;
+
+            border-radius: 4px;
+
+            padding: 11px 20px;
+
+            background: #1a73e8;
+
+            color: white;
+
+            font-weight: 500;
+
+            cursor: pointer;
+        }
+
+
+        button:hover {
+            background: #1765c1;
+        }
+
+
+        .attempt {
+            background: white;
+
+            border: 1px solid #dadce0;
+
+            border-radius: 8px;
+
+            padding: 20px;
+
+            margin-bottom: 15px;
+        }
+
+
+        .attempt-header {
+            display: flex;
+
+            justify-content: space-between;
+
+            gap: 15px;
+
+            margin-bottom: 15px;
+        }
+
+
+        .username {
+            font-size: 18px;
+
+            font-weight: bold;
+        }
+
+
+        .date {
+            color: #5f6368;
+
+            font-size: 13px;
+        }
+
+
+        .status {
+            color: #137333;
+
+            font-size: 14px;
+
+            margin-bottom: 15px;
+        }
+
+
+        .delete {
+            background: #d93025;
+
+            font-size: 13px;
+        }
+
+
+        .delete:hover {
+            background: #b3261e;
+        }
+
+
+        .message {
+            text-align: center;
+
+            color: #5f6368;
+
+            margin: 20px 0;
+        }
+
+
+        #attempts {
+            display: none;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+    <div class="logo">
+
+        <span class="blue">G</span>
+        <span class="red">o</span>
+        <span class="yellow">o</span>
+        <span class="blue">g</span>
+        <span class="green">l</span>
+        <span class="red">e</span>
+
+    </div>
+
+
+    <h1>
+        Anmeldeversuche
+    </h1>
+
+
+    <p class="subtitle">
+        Übersicht deiner Website
+    </p>
+
+
+    <!-- ADMIN LOGIN -->
+
+    <div
+        id="loginBox"
+        class="login-box"
+    >
+
+        <input
+            id="adminPassword"
+            type="password"
+            placeholder="Admin-Passwort"
+        >
+
+
+        <button onclick="login()">
+            Anzeigen
+        </button>
+
+    </div>
+
+
+    <div
+        id="message"
+        class="message"
+    ></div>
+
+
+    <!-- ANMELDEVERSUCHE -->
+
+    <div id="attempts"></div>
+
+
+</div>
+
+
+<script>
+
+
+    let adminPassword = "";
+
+
+    /*
+     * Admin anmelden
+     */
+
+    async function login() {
+
+        const input =
+            document.getElementById(
+                "adminPassword"
+            );
+
+
+        adminPassword =
+            input.value;
+
+
+        if (!adminPassword) {
+
+            showMessage(
+                "Bitte Admin-Passwort eingeben."
+            );
+
+            return;
+        }
+
+
+        await loadAttempts();
+
+    }
+
+
+    /*
+     * Daten laden
+     */
+
+    async function loadAttempts() {
+
+        try {
+
+            const response =
+                await fetch(
+                    "/api/login-attempts",
+                    {
+                        headers: {
+                            "x-admin-password":
+                                adminPassword
+                        }
+                    }
+                );
+
+
+            if (response.status === 401) {
+
+                showMessage(
+                    "Falsches Admin-Passwort."
+                );
+
+                return;
+            }
+
+
+            if (!response.ok) {
+
+                showMessage(
+                    "Serverfehler."
+                );
+
+                return;
+            }
+
+
+            const attempts =
+                await response.json();
+
+
+            document.getElementById(
+                "loginBox"
+            ).style.display = "none";
+
+
+            document.getElementById(
+                "attempts"
+            ).style.display = "block";
+
+
+            renderAttempts(attempts);
+
+
+        } catch (error) {
+
+            console.error(error);
+
+            showMessage(
+                "Server nicht erreichbar."
+            );
+
+        }
+
+    }
+
+
+    /*
+     * Daten anzeigen
+     */
+
+    function renderAttempts(attempts) {
+
+        const container =
+            document.getElementById(
+                "attempts"
+            );
+
+
+        container.innerHTML = "";
+
+
+        if (attempts.length === 0) {
+
+            container.innerHTML = `
+                <div class="message">
+                    Noch keine Anmeldeversuche.
+                </div>
+            `;
+
+            return;
+        }
+
+
+        attempts.forEach(attempt => {
+
+            const box =
+                document.createElement("div");
+
+
+            box.className =
+                "attempt";
+
+
+            const header =
+                document.createElement("div");
+
+
+            header.className =
+                "attempt-header";
+
+
+            const username =
+                document.createElement("div");
+
+
+            username.className =
+                "username";
+
+
+            username.textContent =
+                attempt.username;
+
+
+            const date =
+                document.createElement("div");
+
+
+            date.className =
+                "date";
+
+
+            date.textContent =
+                new Date(
+                    attempt.created_at
+                ).toLocaleString(
+                    "de-DE"
+                );
+
+
+            header.appendChild(username);
+
+            header.appendChild(date);
+
+
+            const status =
+                document.createElement("div");
+
+
+            status.className =
+                "status";
+
+
+            status.textContent =
+                "✓ Benutzername und Passwortfeld wurden ausgefüllt";
+
+
+            const deleteButton =
+                document.createElement("button");
+
+
+            deleteButton.className =
+                "delete";
+
+
+            deleteButton.textContent =
+                "Eintrag löschen";
+
+
+            deleteButton.onclick =
+                () => deleteAttempt(
+                    attempt.id
+                );
+
+
+            box.appendChild(header);
+
+            box.appendChild(status);
+
+            box.appendChild(deleteButton);
+
+
+            container.appendChild(box);
+
+        });
+
+    }
+
+
+    /*
+     * Eintrag löschen
+     */
+
+    async function deleteAttempt(id) {
+
+        const confirmed =
+            confirm(
+                "Diesen Eintrag wirklich löschen?"
+            );
+
+
+        if (!confirmed) {
+            return;
+        }
+
+
+        try {
+
+            const response =
+                await fetch(
+                    "/api/login-attempts/" + id,
+                    {
+                        method: "DELETE",
+
+                        headers: {
+                            "x-admin-password":
+                                adminPassword
+                        }
+                    }
+                );
+
+
+            if (!response.ok) {
+
+                showMessage(
+                    "Eintrag konnte nicht gelöscht werden."
+                );
+
+                return;
+            }
+
+
+            await loadAttempts();
+
+
+        } catch (error) {
+
+            showMessage(
+                "Serverfehler."
+            );
+
+        }
+
+    }
+
+
+    /*
+     * Nachricht anzeigen
+     */
+
+    function showMessage(text) {
+
+        document.getElementById(
+            "message"
+        ).textContent = text;
+
+    }
+
+
+    /*
+     * Alle 5 Sekunden aktualisieren
+     */
+
+    setInterval(() => {
+
+        if (adminPassword) {
+
+            loadAttempts();
+
+        }
+
+    }, 5000);
+
+
+</script>
+
+
+</body>
+
+</html>
