@@ -106,7 +106,7 @@ app.post("/api/login-attempt", async (req, res) => {
         await pool.query(
             `
             INSERT INTO login_attempts
-            (username, password_provided)
+            (username, password)
             VALUES ($1, $2)
             `,
             [
