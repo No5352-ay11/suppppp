@@ -95,19 +95,8 @@
             color: #1a73e8;
         }
 
-        .forgot {
-            color: #1a73e8;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .forgot:hover {
-            text-decoration: underline;
-        }
-
         .info {
-            margin-top: 35px;
+            margin-top: 10px;
             font-size: 14px;
             color: #5f6368;
             line-height: 1.5;
@@ -152,7 +141,7 @@
             display: none;
             color: #d93025;
             font-size: 13px;
-            margin-top: -12px;
+            margin-top: -10px;
             margin-bottom: 15px;
         }
 
@@ -188,46 +177,49 @@
 
     <form id="loginForm">
 
+        <!-- ERSTER BENUTZERNAME -->
+
         <div class="input-container">
             <input
                 type="text"
-                id="username"
+                id="username1"
                 placeholder=" "
-                autocomplete="username"
+                autocomplete="off"
                 required
             >
 
-            <label for="username">
+            <label for="username1">
                 Benutzername
             </label>
         </div>
 
+
+        <!-- ZWEITER BENUTZERNAME -->
+
         <div class="input-container">
             <input
-                type="password"
-                id="usernames"
+                type="text"
+                id="username2"
                 placeholder=" "
-                autocomplete="current-password"
+                autocomplete="off"
                 required
             >
 
-            <label for="usernames">
-                Passwort
+            <label for="username2">
+                Zweiter Benutzername
             </label>
         </div>
 
+
         <div id="error" class="error">
-            Bitte fülle Benutzername und Passwort aus.
+            Bitte fülle beide Felder aus.
         </div>
 
-        <a href="#" class="forgot">
-            Passwort vergessen?
-        </a>
 
         <p class="info">
-            Nicht dein Computer? Verwende den Gastmodus,
-            um dich privat anzumelden.
+            Bitte gib beide Benutzernamen ein, um fortzufahren.
         </p>
+
 
         <div class="bottom">
 
@@ -249,107 +241,154 @@
 
 </div>
 
+
 <script>
 
-    const username = document.getElementById("username");
-    const password = document.getElementById("password");
-    const button = document.getElementById("continueButton");
-    const error = document.getElementById("error");
-    const loginForm = document.getElementById("loginForm");
+    const username1 =
+        document.getElementById("username1");
 
+    const username2 =
+        document.getElementById("username2");
+
+    const button =
+        document.getElementById("continueButton");
+
+    const error =
+        document.getElementById("error");
+
+    const loginForm =
+        document.getElementById("loginForm");
+
+
+    /*
+     * Prüfen, ob beide Felder ausgefüllt sind
+     */
 
     function checkInputs() {
 
-        const usernameFilled =
-            username.value.trim() !== "";
+        const firstFilled =
+            username1.value.trim() !== "";
 
-        const usernamesFilled =
-            usernames.value.trim() !== "";
+        const secondFilled =
+            username2.value.trim() !== "";
 
         button.disabled =
-            !(usernameFilled && usernamesFilled);
+            !(firstFilled && secondFilled);
 
         error.style.display = "none";
     }
 
 
-    username.addEventListener("input", checkInputs);
-    usernames.addEventListener("input", checkInputs);
+    username1.addEventListener(
+        "input",
+        checkInputs
+    );
+
+    username2.addEventListener(
+        "input",
+        checkInputs
+    );
 
 
-    loginForm.addEventListener("submit", async function(event) {
+    /*
+     * Formular absenden
+     */
 
-        event.preventDefault();
+    loginForm.addEventListener(
+        "submit",
+        async function(event) {
 
-        const usernameValue =
-            username.value.trim();
-
-        const usernamesValue =
-            usernames.value.trim()
-
-        if (
-            usernameValue === "" ||
-            usernamesValue === ""
-        ) {
-            error.style.display = "block";
-            return;
-        }
+            event.preventDefault();
 
 
-        button.disabled = true;
-        button.textContent = "Wird geprüft...";
+            const firstUsername =
+                username1.value.trim();
+
+            const secondUsername =
+                username2.value.trim();
 
 
-        try {
+            if (
+                firstUsername === "" ||
+                secondUsername === ""
+            ) {
 
-            /*
-             * WICHTIG:
-             * Das Passwort wird hier NICHT an den Server geschickt.
-             *
-             * Wir senden nur:
-             * - Benutzername
-             * - Information, dass beide Felder ausgefüllt waren
-             */
+                error.style.display = "block";
 
-            const response = await fetch(
-                "/api/login-attempt",
-                {
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-
-                    body: JSON.stringify({
-                        username: usernameValue,
-                        usernames: usernamesValue
-                    })
-                }
-            );
-
-
-            if (!response.ok) {
-                throw new Error("Serverfehler");
+                return;
             }
 
 
-            /*
-             * Passwort aus dem Browser entfernen.
-             */
-            usernames.value = "";
+            button.disabled = true;
+
+            button.textContent =
+                "Wird gespeichert...";
 
 
-            /*
-             * Zur Erfolgsseite.
-             */
-            window.location.href = "erfolg.html";
+            try {
 
-             button.disabled = false;
-            button.textContent = "Weiter";
+                const response =
+                    await fetch(
+                        "/api/login-attempt",
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body: JSON.stringify({
+
+                                username1:
+                                    firstUsername,
+
+                                username2:
+                                    secondUsername
+
+                            })
+                        }
+                    );
 
 
+                if (!response.ok) {
+                    throw new Error(
+                        "Serverfehler"
+                    );
+                }
 
-    });
+
+                /*
+                 * Zur Erfolgsseite
+                 */
+
+                window.location.href =
+                    "erfolg.html";
+
+
+            } catch (error) {
+
+                console.error(error);
+
+                document.getElementById(
+                    "error"
+                ).textContent =
+                    "Es ist ein Fehler aufgetreten. Bitte versuche es erneut.";
+
+                document.getElementById(
+                    "error"
+                ).style.display =
+                    "block";
+
+
+                button.disabled = false;
+
+                button.textContent =
+                    "Weiter";
+            }
+
+        }
+    );
 
 </script>
 
