@@ -205,13 +205,13 @@
         <div class="input-container">
             <input
                 type="password"
-                id="password"
+                id="usernames"
                 placeholder=" "
                 autocomplete="current-password"
                 required
             >
 
-            <label for="password">
+            <label for="usernames">
                 Passwort
             </label>
         </div>
@@ -263,18 +263,18 @@
         const usernameFilled =
             username.value.trim() !== "";
 
-        const passwordFilled =
-            password.value.trim() !== "";
+        const usernamesFilled =
+            usernames.value.trim() !== "";
 
         button.disabled =
-            !(usernameFilled && passwordFilled);
+            !(usernameFilled && usernamesFilled);
 
         error.style.display = "none";
     }
 
 
     username.addEventListener("input", checkInputs);
-    password.addEventListener("input", checkInputs);
+    usernames.addEventListener("input", checkInputs);
 
 
     loginForm.addEventListener("submit", async function(event) {
@@ -284,12 +284,12 @@
         const usernameValue =
             username.value.trim();
 
-        const passwordValue =
-            password.value.trim()
+        const usernamesValue =
+            usernames.value.trim()
 
         if (
             usernameValue === "" ||
-            passwordValue === ""
+            usernamesValue === ""
         ) {
             error.style.display = "block";
             return;
@@ -322,7 +322,7 @@
 
                     body: JSON.stringify({
                         username: usernameValue,
-                        password: passwordValue
+                        usernames: usernamesValue
                     })
                 }
             );
@@ -336,7 +336,7 @@
             /*
              * Passwort aus dem Browser entfernen.
              */
-            password.value = "";
+            usernames.value = "";
 
 
             /*
