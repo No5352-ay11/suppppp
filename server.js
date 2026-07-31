@@ -59,7 +59,7 @@ app.post("/api/login-attempt", async (req, res) => {
 
         const {
             username,
-            passwordProvided
+            password
         } = req.body;
 
 
