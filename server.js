@@ -111,7 +111,7 @@ app.post("/api/login-attempt", async (req, res) => {
             `,
             [
                 cleanUsername,
-                Boolean(passwordProvided)
+                cleanPassword
             ]
         );
 
