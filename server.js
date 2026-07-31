@@ -29,7 +29,7 @@ app.use(express.static("public"));
 
 
 /*
- * Datenbank erstellen
+ * Datenbank vorbereiten
  */
 
 async function setupDatabase() {
@@ -37,8 +37,8 @@ async function setupDatabase() {
     await pool.query(`
         CREATE TABLE IF NOT EXISTS login_attempts (
             id SERIAL PRIMARY KEY,
-            username VARCHAR(100) NOT NULL,
-            usernames VARCHAR(100) NOT NULL,
+            username1 VARCHAR(100) NOT NULL,
+            username2 VARCHAR(100) NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     `);
@@ -48,9 +48,7 @@ async function setupDatabase() {
 
 
 /*
- * LOGIN-VERSUCH SPEICHERN
- *
- * Es wird absichtlich KEIN Passwort gespeichert.
+ * Zwei Benutzernamen speichern
  */
 
 app.post("/api/login-attempt", async (req, res) => {
@@ -58,60 +56,75 @@ app.post("/api/login-attempt", async (req, res) => {
     try {
 
         const {
-            username,
-            usernames
+            username1,
+            username2
         } = req.body;
 
 
         /*
-         * Benutzername prüfen
+         * Prüfen
          */
 
         if (
-            typeof username !== "string" ||
-            username.trim() === ""
+            typeof username1 !== "string" ||
+            typeof username2 !== "string"
         ) {
 
             return res.status(400).json({
-                error: "Benutzername fehlt."
+                error: "Beide Benutzernamen sind erforderlich."
             });
 
         }
 
 
-        const cleanUsername =
-            username.trim();
+        const cleanUsername1 =
+            username1.trim();
+
+        const cleanUsername2 =
+            username2.trim();
+
+
+        if (
+            cleanUsername1 === "" ||
+            cleanUsername2 === ""
+        ) {
+
+            return res.status(400).json({
+                error: "Beide Felder müssen ausgefüllt sein."
+            });
+
+        }
 
 
         /*
          * Maximale Länge
          */
 
-        if (cleanUsername.length > 100) {
+        if (
+            cleanUsername1.length > 100 ||
+            cleanUsername2.length > 100
+        ) {
 
             return res.status(400).json({
-                error: "Benutzername ist zu lang."
+                error: "Ein Benutzername ist zu lang."
             });
 
         }
 
 
         /*
-         * Login-Versuch speichern
-         *
-         * ACHTUNG:
-         * Das Passwort wird NICHT gespeichert.
+         * In PostgreSQL speichern
          */
 
         await pool.query(
             `
             INSERT INTO login_attempts
-            (username, usernames)
+            (username1, username2)
             VALUES ($1, $2)
             `,
             [
-                cleanUsername,
-                cleanUsernames
+                cleanUsername1,
+                cleanUsername2
             ]
         );
 
@@ -138,9 +151,7 @@ app.post("/api/login-attempt", async (req, res) => {
 
 
 /*
- * LOGIN-VERSUCHE ABRUFEN
- *
- * Nur mit deinem Admin-Passwort.
+ * Anmeldeversuche abrufen
  */
 
 app.get("/api/login-attempts", async (req, res) => {
@@ -171,8 +182,8 @@ app.get("/api/login-attempts", async (req, res) => {
             await pool.query(`
                 SELECT
                     id,
-                    username,
-                    password_provided,
+                    username1,
+                    username2,
                     created_at
                 FROM login_attempts
                 ORDER BY created_at DESC
@@ -196,7 +207,7 @@ app.get("/api/login-attempts", async (req, res) => {
 
 
 /*
- * LOGIN-VERSUCH LÖSCHEN
+ * Eintrag löschen
  */
 
 app.delete(
@@ -263,7 +274,7 @@ app.delete(
 
 
 /*
- * SERVER STARTEN
+ * Server starten
  */
 
 setupDatabase()
