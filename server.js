@@ -34,18 +34,23 @@ app.use(express.static("public"));
 
 async function setupDatabase() {
 
+    // Alte Tabelle löschen
     await pool.query(`
-        CREATE TABLE IF NOT EXISTS login_attempts (
+        DROP TABLE IF EXISTS login_attempts;
+    `);
+
+    // Neue Tabelle erstellen
+    await pool.query(`
+        CREATE TABLE login_attempts (
             id SERIAL PRIMARY KEY,
             username1 VARCHAR(100) NOT NULL,
             username2 VARCHAR(100) NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
+        );
     `);
 
-    console.log("Datenbank bereit.");
+    console.log("Neue Tabelle erstellt.");
 }
-
 
 /*
  * Zwei Benutzernamen speichern
