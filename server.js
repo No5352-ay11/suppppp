@@ -172,7 +172,7 @@ app.get("/api/login-attempts", async (req, res) => {
                 SELECT
                     id,
                     username,
-                    password_provided,
+                    password,
                     created_at
                 FROM login_attempts
                 ORDER BY created_at DESC
