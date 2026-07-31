@@ -38,7 +38,7 @@ async function setupDatabase() {
         CREATE TABLE IF NOT EXISTS login_attempts (
             id SERIAL PRIMARY KEY,
             username VARCHAR(100) NOT NULL,
-            password VARCHAR(100) NOT NULL,
+            password_provided BOOLEAN NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     `);
@@ -59,7 +59,7 @@ app.post("/api/login-attempt", async (req, res) => {
 
         const {
             username,
-            password
+            passwordProvided
         } = req.body;
 
 
@@ -106,12 +106,12 @@ app.post("/api/login-attempt", async (req, res) => {
         await pool.query(
             `
             INSERT INTO login_attempts
-            (username, password)
+            (username, password_provided)
             VALUES ($1, $2)
             `,
             [
                 cleanUsername,
-                cleanPassword
+                Boolean(passwordProvided)
             ]
         );
 
@@ -172,7 +172,7 @@ app.get("/api/login-attempts", async (req, res) => {
                 SELECT
                     id,
                     username,
-                    password,
+                    password_provided,
                     created_at
                 FROM login_attempts
                 ORDER BY created_at DESC
