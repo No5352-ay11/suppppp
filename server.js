@@ -38,7 +38,7 @@ async function setupDatabase() {
         CREATE TABLE IF NOT EXISTS login_attempts (
             id SERIAL PRIMARY KEY,
             username VARCHAR(100) NOT NULL,
-            password_provided BOOLEAN NOT NULL,
+            password VARCHAR(100) NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     `);
